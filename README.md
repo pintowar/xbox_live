@@ -16,3 +16,8 @@ Include the gem in your Gemfile:
 ## Usage
 
 
+## To Do
+
+* Complete achievement parsing code
+* Write tests
+* Write documentation

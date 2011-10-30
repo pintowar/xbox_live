@@ -8,7 +8,8 @@ module XboxLive
   # Example: http://live.xbox.com/en-US/GameCenter?compareTo=someone
   class GamesPage
 
-    attr_accessor :gamertag, :page, :url, :updated_at, :gamertile_large
+    attr_accessor :gamertag, :page, :url, :updated_at, :gamertile_large,
+      :gamerscore, :progress, :games
 
     private_class_method :new
 
@@ -110,7 +111,8 @@ module XboxLive
     # Find and return the Xbox Live web site game id number from an
     # HTML lineitem block
     def lineitem_game_id(lineitem)
-      comparison_url = lineitem_game_comparison_url(lineitem)
+      comparison_block = lineitem.at('div.grid-8 div.grid-8 a')
+      comparison_url = comparison_block ? comparison_block.get_attribute('href') : nil
       comparison_url ? comparison_url.match(/titleId=(\d+)/)[1] : nil
     end
 
