@@ -81,7 +81,7 @@ module XboxLive
 
     # Write out a log entry
     def self.log(message)
-      puts message
+      puts message if XboxLive.options[:debug]
     end
 
   end

@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.version     = XboxLive::VERSION
   s.authors     = ["Mike Fischer"]
   s.email       = ["mikefischer99@gmail.com"]
-  s.homepage    = "TBD"
+  s.homepage    = "https://github.com/greendog99/xbox_live"
   s.summary     = %q{Xbox Live data retrieval}
   s.description = %q{Log into Xbox Live and retrieve information about a player}
   s.platform    = Gem::Platform::RUBY
