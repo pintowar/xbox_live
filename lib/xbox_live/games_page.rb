@@ -66,13 +66,13 @@ module XboxLive
       games = @page.search('div.LineItem').collect do |item|
         # Only analyze this game if the player has played it
         if item.at('div.grid-4').at('div.NotPlayed').nil?
-          gi = GameInfo.new(gamertag, lineitem_game_id(item))
-          gi.name = lineitem_game_name(item)
-          gi.tile = lineitem_game_tile(item)
-          gi.total_points    = lineitem_game_points(item)
-          gi.unlocked_points = lineitem_player_points(item)
-          gi.total_achievements    = lineitem_game_achievements(item)
-          gi.unlocked_achievements = lineitem_player_achievements(item)
+          gi = GameInfo.new(gamertag, find_game_id_from_lineitem(item))
+          gi.name = find_game_name_from_lineitem(item)
+          gi.tile = find_game_tile_from_lineitem(item)
+          gi.total_points    = find_total_points_from_lineitem(item)
+          gi.unlocked_points = find_unlocked_points_from_lineitem(item)
+          gi.total_achievements    = find_total_achievements_from_lineitem(item)
+          gi.unlocked_achievements = find_unlocked_achievements_from_lineitem(item)
         end
         gi
       end
@@ -80,51 +80,40 @@ module XboxLive
     end
 
     # These methods are used to find data about a specific game within
-    # an HTML "div.lineitem" block
+    # an HTML "div.lineitem" block from the Xbox Live web site.
 
-    # Find and return the game name from an HTML lineitem block
-    def lineitem_game_name(lineitem)
-      name_block = lineitem.at('h3 a')
-      name_block ? name_block.inner_html.strip : nil
-    end
-
-    # Find and return the Xbox Live web site game id number from an
-    # HTML lineitem block
-    def lineitem_game_id(lineitem)
+    def find_game_id_from_lineitem(lineitem)
       comparison_block = lineitem.at('div.grid-8 div.grid-8 a')
       comparison_url = comparison_block ? comparison_block.get_attribute('href') : nil
       comparison_url ? comparison_url.match(/titleId=(\d+)/)[1] : nil
     end
 
-    # Find and return the Xbox Live web site game id number from an
-    # HTML lineitem block
-    def lineitem_game_tile(lineitem)
+    def find_game_name_from_lineitem(lineitem)
+      name_block = lineitem.at('h3 a')
+      name_block ? name_block.inner_html.strip : nil
+    end
+
+    def find_game_tile_from_lineitem(lineitem)
       tile_block = lineitem.at('img.BoxShot')
       tile_block ? tile_block.get_attribute('src') : nil
     end
 
-    # Find and return the number of points the player has achieved in
-    # this game so far.
-    def lineitem_player_points(lineitem)
+    def find_unlocked_points_from_lineitem(lineitem)
       score_block = lineitem.at('div.grid-4 div.GamerScore')
       score_block ? score_block.inner_html.to_i : nil
     end
 
-    # Find and return the total number of points available in this game.
-    def lineitem_game_points(lineitem)
+    def find_total_points_from_lineitem(lineitem)
       score_block = lineitem.at('div.grid-4 div.GamerScore')
       score_block ? score_block.inner_html.match(/\/ (\d+)/)[1].to_i : nil
     end
 
-    # Find and return the number of achievements the player has unlocked in
-    # this game so far.
-    def lineitem_player_achievements(lineitem)
+    def find_unlocked_achievements_from_lineitem(lineitem)
       score_block = lineitem.at('div.grid-4 div.Achievement')
       score_block ? score_block.inner_html.to_i : nil
     end
 
-    # Find and return the total number of achievements available in this game.
-    def lineitem_game_achievements(lineitem)
+    def find_total_achievements_from_lineitem(lineitem)
       score_block = lineitem.at('div.grid-4 div.Achievement')
       score_block ? score_block.inner_html.match(/\/ (\d+)/)[1].to_i : nil
     end
