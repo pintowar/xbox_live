@@ -1,9 +1,9 @@
 module XboxLive
 
-  # Each GamesPage tracks and makes available the data contianed in an Xbox
-  # Live "Compare Games" page.  This can be used to determine which games
-  # a player has played, and their score and number of achievements acquired
-  # in each game.
+  # Each GamesPage tracks the data contianed in an Xbox Live "Compare
+  # Games" page.  This can be used to determine which games a player has
+  # played, and their score and number of achievements acquired in each
+  # game.
   #
   # Example: http://live.xbox.com/en-US/GameCenter?compareTo=someone
   class GamesPage
@@ -11,29 +11,9 @@ module XboxLive
     attr_accessor :gamertag, :page, :url, :updated_at, :gamertile_large,
       :gamerscore, :progress, :games
 
-    private_class_method :new
-
-
-    # Rather than letting the caller instantiate new instances themselves,
-    # creating duplicative instances, callers should use the GamesPage.find()
-    # class method which will return an existing GamesPage for the specified
-    # gamertag, or will instantiate a new instance if necessary.
-    #
-    # See http://juixe.com/techknow/index.php/2007/01/22/ruby-class-tutorial/
-    def self.find(gamertag)
-      games_page = ObjectSpace.each_object(XboxLive::GamesPage).find { |p| p.gamertag == gamertag }
-      if games_page.nil?
-        games_page = new(gamertag)
-      end
-      return games_page
-    end
-
 
     # Create a new GamesPage for the provided gamertag. Retrieve the
-    # html game compare page from the Xbox Live web site for analysis. To
-    # prevent multiple instances for the same gamertag, this method is
-    # marked as private. The GamesPage.find() method should be used
-    # to find an existing instance or create a new one if needed.
+    # html game compare page from the Xbox Live web site for analysis.
     def initialize(gamertag)
       @gamertag = gamertag
       refresh
@@ -44,6 +24,7 @@ module XboxLive
     # Ensure a minimal amount of time has gone by before doing a refresh.
     def refresh
       return false if @updated_at and Time.now - @updated_at < XboxLive.options[:refresh_age]
+
       url = XboxLive.options[:url_prefix] + '/en-US/GameCenter?' +
         Mechanize::Util.build_query_string(compareTo: @gamertag)
       @page = XboxLive::Scraper::get_page url
@@ -82,19 +63,18 @@ module XboxLive
     # Find and return an array of hashes containing information about each
     # game the player has played.
     def find_games
-      games = @page.search('div.LineItem').collect do |lineitem|
+      games = @page.search('div.LineItem').collect do |item|
         # Only analyze this game if the player has played it
-        if lineitem.at('div.grid-4').at('div.NotPlayed').nil?
-          data = Hash.new
-          data[:game_name] = lineitem_game_name(lineitem)
-          data[:game_id] = lineitem_game_id(lineitem)
-          data[:gametile] = lineitem_game_tile(lineitem)
-          data[:player_points] = lineitem_player_points(lineitem)
-          data[:game_points] = lineitem_game_points(lineitem)
-          data[:player_achievements] = lineitem_player_achievements(lineitem)
-          data[:game_achievements] = lineitem_game_achievements(lineitem)
+        if item.at('div.grid-4').at('div.NotPlayed').nil?
+          gi = GameInfo.new(gamertag, lineitem_game_id(item))
+          gi.name = lineitem_game_name(item)
+          gi.tile = lineitem_game_tile(item)
+          gi.total_points    = lineitem_game_points(item)
+          gi.unlocked_points = lineitem_player_points(item)
+          gi.total_achievements    = lineitem_game_achievements(item)
+          gi.unlocked_achievements = lineitem_player_achievements(item)
         end
-        data
+        gi
       end
       return games
     end
