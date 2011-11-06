@@ -10,17 +10,34 @@ change before the 1.0 release.
 
 Questions and suggestions are welcomed, as are pull requests.
 
-## Rails Installation
+## Installation
 
 Include the gem in your Gemfile:
 
     gem "xbox_live"
 
-## Non-Rails Installation
+Or, if you aren't using Bundler, just run:
 
     gem install xbox_live
 
-## Usage
+## Configuration
+
+An Xbox Live username and password must be provided so that the gem
+can log into the Xbox Live web site to retrieve data.
+
+To configure these settings, include the following lines (substituting
+your information) in your program, or for Rails applications, create
+a `config/initializers/xbox_live.rb` file and add the lines there:
+
+    # Your Xbox Live login and password
+    XboxLive.options[:username] = 'your@email.address'
+    XboxLive.options[:password] = 'password'
+
+One additional configuration option is available, if desired:
+
+    XboxLive.options[:debug] = true
+
+## Example
 
 Below is a short sample stand-alone program to demonstrate basic
 functionality. This sample program is also included in the git
@@ -52,6 +69,14 @@ entered for the `player` variable:
     Gamerscore: 9454.
     Score in 'Battlefield 3': 100 out of 1000.
     Unlocked achievement '1st Loser' on 10/28/2011.
+
+## Caveats
+
+The contents, layout, and authentication scheme for the Xbox Live web
+site may change at any time, and historically has changed several times
+per year. These changes will almost certainly break the functionality
+of this gem, requiring a new version of the gem to be coded and
+released.
 
 ## To Do for Version 1.0
 
