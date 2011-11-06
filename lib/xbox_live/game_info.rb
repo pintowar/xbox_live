@@ -9,7 +9,7 @@ module XboxLive
     # Create a new GameInfo for the provided player and game.
     def initialize(gamertag, game_id)
       @gamertag = gamertag
-      @game_id = game_id
+      @id = game_id
     end
 
   end
