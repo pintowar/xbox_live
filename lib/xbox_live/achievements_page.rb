@@ -9,25 +9,6 @@ module XboxLive
 
     attr_accessor :gamertag, :game_id, :page, :url, :updated_at, :achievements
 
-    private_class_method :new
-
-
-    # Rather than letting the caller instantiate new instances
-    # themselves, creating duplicative instances, callers should use the
-    # AchievementsPage.find() class method which will return an existing
-    # AchievementsPage for the specified gamertag, or will instantiate a
-    # new instance if necessary.
-    #
-    # See http://juixe.com/techknow/index.php/2007/01/22/ruby-class-tutorial/
-    def self.find(gamertag, game_id)
-      achievements_page = ObjectSpace.each_object(XboxLive::AchievementsPage).find { |p| p.gamertag == gamertag and p.game_id == game_id }
-      if achievements_page.nil?
-        achievements_page = new(gamertag, game_id)
-      end
-      return achievements_page
-    end
-
-
     # Create a new AchievementsPage for the provided gamertag. Retrieve
     # the html compare achievements page from the Xbox Live web site for
     # analysis. To prevent multiple instances for the same gamertag,
@@ -54,65 +35,66 @@ module XboxLive
       @updated_at = Time.now
       @achievements = find_achievements
 
-      return true
+      true
     end
 
 
     private
 
-
     # Find and return an array of hashes containing information about each
     # achievement the player has unlocked.
     def find_achievements
       achievements = @page.search('div.SpaceItem').collect do |item|
-        data = Hash.new
-        data[:ach_id] = item.at('div.AchievementInfo').attribute('id').value
-        data[:name] = item.at('div.AchievementInfo h3').inner_html.strip
-        data[:description] = item.at('div.AchievementInfo p').inner_html.strip
-        data[:tile] = item.at('div.AchievementInfo img').get_attribute('src')
-        if item.at('div.grid-4').at('div.NotAchieved')
-          data[:points] = data[:unlocked_at] = nil
-        else
-          data[:points] = item.at('div.GamerScore').inner_html[/\d+/].to_i
-          html = item.at('div.AchievementCompareBlock').inner_html
-          if html.include? "unlocked on"
-            data[:unlocked_on] = html.match(/unlocked on (.*)/)[1].strip
-          else
-            data[:unlocked_on] = "12/01/2006"
-          end
+        ai = AchievementInfo.new(gamertag, game_id, find_achievement_id_from_spaceitem(item))
+        ai.name        = find_achievement_name_from_spaceitem(item)
+        ai.description = find_achievement_description_from_spaceitem(item)
+        ai.tile        = find_achievement_tile_from_spaceitem(item)
+        if achievement_unlocked?(item)
+          ai.points      = find_achievement_points_from_spaceitem(item)
+          ai.unlocked_on = find_achievement_unlock_date_from_spaceitem(item)
         end
-        data
+        ai
       end
-      return achievements
+      achievements
     end
 
-    # These methods are used to find data about a specific game within
-    # an HTML "div.lineitem" block
+    # These methods are used to find data about a specific achievement within
+    # an HTML "div.SpaceItem" block.
 
-    # Find and return the number of points the player has achieved in
-    # this game so far.
-    def lineitem_player_points(lineitem)
-      score_block = lineitem.at('div.grid-4 div.GamerScore')
-      score_block ? score_block.inner_html.to_i : nil
+    def achievement_unlocked?(item)
+      item.at('div.grid-4').at('div.NotAchieved').nil?
     end
 
-    # Find and return the total number of points available in this game.
-    def lineitem_game_points(lineitem)
-      score_block = lineitem.at('div.grid-4 div.GamerScore')
-      score_block ? score_block.inner_html.match(/\/ (\d+)/)[1].to_i : nil
+    def find_achievement_id_from_spaceitem(item)
+      item.at('div.AchievementInfo').attribute('id').value
     end
 
-    # Find and return the number of achievements the player has unlocked in
-    # this game so far.
-    def lineitem_player_achievements(lineitem)
-      score_block = lineitem.at('div.grid-4 div.Achievement')
-      score_block ? score_block.inner_html.to_i : nil
+    def find_achievement_name_from_spaceitem(item)
+      item.at('div.AchievementInfo h3').inner_html.strip
     end
 
-    # Find and return the total number of achievements available in this game.
-    def lineitem_game_achievements(lineitem)
-      score_block = lineitem.at('div.grid-4 div.Achievement')
-      score_block ? score_block.inner_html.match(/\/ (\d+)/)[1].to_i : nil
+    def find_achievement_description_from_spaceitem(item)
+      item.at('div.AchievementInfo p').inner_html.strip
+    end
+
+    def find_achievement_tile_from_spaceitem(item)
+      item.at('div.AchievementInfo img').get_attribute('src')
+    end
+
+    def find_achievement_points_from_spaceitem(item)
+      item.at('div.GamerScore').inner_html[/\d+/].to_i
+    end
+
+    # Some achievements don't list an unlock date (for example, if the
+    # unlock happened when the player was not logged into Xbox Live).
+    # For those, we supply a generic, old date.
+    def find_achievement_unlock_date_from_spaceitem(item)
+      html = item.at('div.AchievementCompareBlock').inner_html
+      if html.include? "unlocked on"
+        return html.match(/unlocked on (.*)/)[1].strip
+      else
+        return "12/01/2006"
+      end
     end
 
   end
