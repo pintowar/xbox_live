@@ -7,14 +7,14 @@ XboxLive.options[:debug] = false
 
 player = 'gamertag'
 
-profile_page = XboxLive::ProfilePage.find(player)
-puts "Gamerscore: #{profile_page.gamerscore}."
+profile_page = XboxLive::ProfilePage.new(player)
+puts "Gamerscore: #{profile_page.gamerscore}"
 
-games_page = XboxLive::GamesPage.find(player)
+games_page = XboxLive::GamesPage.new(player)
 first_game = games_page.games.first
-puts "Score in '#{first_game[:game_name]}': #{first_game[:player_points]} out of #{first_game[:game_points]}."
+puts "Score in '#{first_game.name}': #{first_game.unlocked_points} out of #{first_game.total_points}"
 
-achievements_page = XboxLive::AchievementsPage.find(player, first_game[:game_id])
+achievements_page = XboxLive::AchievementsPage.new(player, first_game.id)
 first_ach = achievements_page.achievements.first
-puts "Unlocked achievement '#{first_ach[:name]}' on #{first_ach[:unlocked_on]}."
+puts "Unlocked achievement '#{first_ach.name}' on #{first_ach.unlocked_on}"
 

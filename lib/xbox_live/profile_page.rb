@@ -10,29 +10,9 @@ module XboxLive
     attr_accessor :gamertag, :page, :url, :updated_at, :gamerscore, :motto,
       :avatar, :gamertile_small, :nickname, :bio, :activity
 
-    private_class_method :new
-
-
-    # Rather than letting the caller instantiate new instances themselves,
-    # creating duplicative instances, callers should use the ProfilePage.find()
-    # class method which will return an existing ProfilePage for the specified
-    # gamertag, or will instantiate a new instance if necessary.
-    #
-    # See http://juixe.com/techknow/index.php/2007/01/22/ruby-class-tutorial/
-    def self.find(gamertag)
-      profile_page = ObjectSpace.each_object(XboxLive::ProfilePage).find { |p| p.gamertag == gamertag }
-      if profile_page.nil?
-        profile_page = new(gamertag)
-      end
-      return profile_page
-    end
-
 
     # Create a new ProfilePage for the provided gamertag. Retrieve the
-    # html profile page from the Xbox Live web site for analysis. To
-    # prevent multiple instances for the same gamertag, this method is
-    # marked as private. The ProfilePage.find() method should be used
-    # to find an existing instance or create a new one if needed.
+    # html profile page from the Xbox Live web site for analysis.
     def initialize(gamertag)
       @gamertag = gamertag
       refresh
