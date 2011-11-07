@@ -20,9 +20,7 @@ module XboxLive
 
 
     # Force a reload of the ProfilePage data from the Xbox Live web site.
-    # Ensure a minimal amount of time has gone by before doing a refresh.
     def refresh
-      return false if @updated_at and Time.now - @updated_at < XboxLive.options[:refresh_age]
       url = XboxLive.options[:url_prefix] + '/en-US/MyXbox/Profile?' +
         Mechanize::Util.build_query_string(gamertag: @gamertag)
       @page = XboxLive::Scraper::get_page url
