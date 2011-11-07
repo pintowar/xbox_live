@@ -82,57 +82,57 @@ The `XboxLive::ProfilePage` class makes the following data available
 from a player's Profile page, via a call like `profile_page =
 XboxLive::ProfilePage.new(gamertag)`:
 
-* profile_page.gamertag
-* profile_page.gamerscore
-* profile_page.motto
-* profile_page.avatar
-* profile_page.gamertile_small
-* profile_page.nickname
-* profile_page.bio
-* profile_page.activity
+* `profile_page.gamertag`
+* `profile_page.gamerscore`
+* `profile_page.motto`
+* `profile_page.avatar`
+* `profile_page.gamertile_small`
+* `profile_page.nickname`
+* `profile_page.bio`
+* `profile_page.activity`
 
 The `XboxLive::GamesPage` class makes the following data available from
 a player's Game Comparison page, via a call like `games_page =
 XboxLive::GamesPage.new(gamertag)`:
 
-* games_page.gamertag
-* games_page.gamertile_large
-* games_page.gamerscore
-* games_page.progress
-* games_page.games _(see below)_
+* `games_page.gamertag`
+* `games_page.gamertile_large`
+* `games_page.gamerscore`
+* `games_page.progress`
+* `games_page.games` _(see below)_
 
 `games_page.games` is an Array of XboxLive::GameInfo instances, which track information about a
 player's progress in a game. Each GameInfo instance makes the following data available:
 
-* game_info.id # unique Microsoft identifier
-* game_info.name
-* game_info.tile
-* game_info.total_points
-* game_info.total_achievements
-* game_info.gamertag 
-* game_info.unlocked_points
-* game_info.unlocked_achievements
+* `game_info.id` - unique Microsoft identifier
+* `game_info.name`
+* `game_info.tile`
+* `game_info.total_points`
+* `game_info.total_achievements`
+* `game_info.gamertag`
+* `game_info.unlocked_points`
+* `game_info.unlocked_achievements`
 
 The `XboxLive::AchievementsPage` class makes the following data
 available from a player's Game Achievement Comparison page, via a call
 like `ach_page = XboxLive::AchievementsPage.new(gamertag, game_id)`:
 
-* ach_page.gamertag
-* ach_page.game_id
-* ach_page.achievements _(see below)_
+* `ach_page.gamertag`
+* `ach_page.game_id`
+* `ach_page.achievements` _(see below)_
 
 `ach_page.achievements` is an Array of XboxLive::AchievementInfo
 instances, which track information about a player's achievements in a
 game. Each AchievementInfo instance makes the following data available:
 
-* ach_info.id # Microsoft identifier, unique only within this game
-* ach_info.gamertag
-* ach_info.game_id
-* ach_info.name
-* ach_info.description
-* ach_info.tile
-* ach_info.points
-* ach_info.unlocked_on # nil if the player has not yet unlocked it
+* `ach_info.id` - Microsoft identifier, unique only within this game
+* `ach_info.gamertag`
+* `ach_info.game_id`
+* `ach_info.name`
+* `ach_info.description`
+* `ach_info.tile`
+* `ach_info.points`
+* `ach_info.unlocked_on` - nil if the player has not yet unlocked it
 
 ## Caveats
 
