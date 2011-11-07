@@ -14,7 +14,7 @@ module XboxLive
     @options ||= {
       :username => nil,
       :password => nil,
-      :refresh_age => 60,  # data will be re-fetched if older than X seconds
+      :refresh_age => 600,  # data will be re-fetched if older than X seconds
       :url_prefix => 'http://live.xbox.com'
     }
   end

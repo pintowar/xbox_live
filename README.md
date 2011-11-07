@@ -33,8 +33,15 @@ a `config/initializers/xbox_live.rb` file and add the lines there:
     XboxLive.options[:username] = 'your@email.address'
     XboxLive.options[:password] = 'password'
 
-One additional configuration option is available, if desired:
+Two optional configuration options are also available, but are not
+required to be set:
 
+    # Pages retrieved from Xbox Live are cached for 10 minutes (600
+    # seconds) by default, to prevent unnecessary reloads from the Xbox
+    # Live web site. The maximum cache age can be changed here.
+    XboxLive.options[:refresh_age] = 300  # Cache for only 5 minutes
+
+    # Show debugging output on the console.
     XboxLive.options[:debug] = true
 
 ## Example
@@ -79,9 +86,6 @@ released.
 
 ## To Do for Version 1.0
 
-* Complete achievement parsing code
 * Write tests
-* Finish documentation
 * Refactor
-* Write page caching code to reduce identical page loads
 * Improve API
