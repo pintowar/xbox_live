@@ -44,8 +44,14 @@ module XboxLive
       end
 
       if page.nil? or page.title.match /Error/
-        log "  ERROR: failed to load page."
-        return nil
+        log "  ERROR: failed to load page. Trying again."
+        page = agent.get(url)
+        if page.nil? or page.title.match /Error/
+          log "  ERROR: failed on second try. Aborting."
+          return nil
+        else
+          log "  SUCCESS: page loaded on retry."
+        end
       end
 
       if page.uri.to_s != url
