@@ -38,6 +38,7 @@ module XboxLive
       return true
     end
 
+
     private
 
     # POST to retrieve the JSON data about games that have been played
@@ -85,7 +86,7 @@ module XboxLive
         gi.total_achievements = game['PossibleAchievements']
         gi.unlocked_points = game['Progress'][@gamertag]['Score']
         gi.unlocked_achievements = game['Progress'][@gamertag]['Achievements']
-        gi.last_played = game['Progress'][@gamertag]['LastPlayed']
+        gi.last_played = Time.at(game['Progress'][@gamertag]['LastPlayed'].match(/Date\((\d+)/)[1].to_i / 1000)
         gi
       end
       return games
