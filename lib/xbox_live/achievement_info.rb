@@ -4,7 +4,7 @@ module XboxLive
   # specific achievement.
   class AchievementInfo
 
-    attr_accessor :id, :game_id, :gamertag, :name, :description, :tile, :points, :unlocked_on
+    attr_accessor :id, :game_id, :gamertag, :name, :description, :tile, :points, :unlocked_at
 
     # Create a new AchievementInfo for the provided player and game.
     def initialize(gamertag, game_id, achievement_id)

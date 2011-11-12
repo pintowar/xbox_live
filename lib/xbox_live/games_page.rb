@@ -30,6 +30,7 @@ module XboxLive
       @url = url
       @updated_at = Time.now
       @data = retrieve_game_data
+      @gamertag = find_gamertag
       @gamertile_large = find_gamertile_large
       @gamerscore = find_gamerscore
       @progress = find_progress
@@ -55,6 +56,13 @@ module XboxLive
     def find_request_verification_token
       token_block = @page.at('input[name=__RequestVerificationToken]')
       token_block ? token_block.get_attribute('value') : nil
+    end
+
+    # Find the gamertag, in case the caps/lowercase are different than
+    # what was provided.
+    def find_gamertag
+      player = @data['Players'].find { |p| p['Gamertag'].casecmp(@gamertag) == 0 }
+      player ? player['Gamertag'] : nil
     end
 
     # Find and return the player's large gamertile url from the Games data
@@ -86,7 +94,8 @@ module XboxLive
         gi.total_achievements = game['PossibleAchievements']
         gi.unlocked_points = game['Progress'][@gamertag]['Score']
         gi.unlocked_achievements = game['Progress'][@gamertag]['Achievements']
-        gi.last_played = Time.at(game['Progress'][@gamertag]['LastPlayed'].match(/Date\((\d+)/)[1].to_i / 1000)
+        time_field = game['Progress'][@gamertag]['LastPlayed'].match(/Date\((\d+)/)
+        gi.last_played = Time.at(time_field[1].to_i / 1000) if time_field
         gi
       end
       return games

@@ -57,7 +57,8 @@ module XboxLive
         if unlocked?(ach)
           ai.points      = ach['Score']
           # TODO: Refactor this mess
-          ai.unlocked_on = Time.at(ach['EarnDates'][@gamertag]['EarnedOn'].match(/Date\((\d+)/)[1].to_i / 1000)
+          time_field = ach['EarnDates'][@gamertag]['EarnedOn'].match(/Date\((\d+)/)
+          ai.unlocked_at = Time.at(time_field[1].to_i / 1000) if time_field
         end
         ai
       end

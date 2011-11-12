@@ -133,7 +133,7 @@ game. Each AchievementInfo instance makes the following data available:
 * `ach_info.description`
 * `ach_info.tile`
 * `ach_info.points`
-* `ach_info.unlocked_on` - nil if the player has not yet unlocked it
+* `ach_info.unlocked_at` - nil if the player has not yet unlocked it
 
 ## Caveats
 
