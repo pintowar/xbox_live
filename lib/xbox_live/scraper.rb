@@ -58,6 +58,13 @@ module XboxLive
       page
     end
 
+    # POST a page to Xbox Live and return the result.
+    def self.post_page(url, params)
+      log "POSTing page #{url} with params #{params}."
+      page = agent.post(url, params)
+      page
+    end
+
 
     private
 
