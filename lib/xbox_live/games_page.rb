@@ -5,11 +5,11 @@ module XboxLive
   # played, and their score and number of achievements acquired in each
   # game.
   #
-  # Example: http://live.xbox.com/en-US/GameCenter?compareTo=someone
+  # Example: http://live.xbox.com/en-US/Activity?compareTo=someone
   class GamesPage
 
     attr_accessor :gamertag, :page, :url, :updated_at, :gamertile_large,
-      :gamerscore, :progress, :games
+      :gamerscore, :progress, :games, :data
 
 
     # Create a new GamesPage for the provided gamertag. Retrieve the
@@ -22,16 +22,17 @@ module XboxLive
 
     # Force a reload of the GamesPage data from the Xbox Live web site.
     def refresh
-      url = XboxLive.options[:url_prefix] + '/en-US/GameCenter?' +
+      url = XboxLive.options[:url_prefix] + '/en-US/Activity?' +
         Mechanize::Util.build_query_string(compareTo: @gamertag)
-      @page = XboxLive::Scraper::get_page url
+      @page = XboxLive::Scraper::get_page(url)
       return false if page.nil?
 
       @url = url
       @updated_at = Time.now
+      @data = retrieve_game_data
       @gamertile_large = find_gamertile_large
       @gamerscore = find_gamerscore
-      @progess = find_progress
+      @progress = find_progress
       @games = find_games
 
       return true
@@ -39,80 +40,55 @@ module XboxLive
 
     private
 
-    # Find and return the player's large gamertile url from the Games page
+    # POST to retrieve the JSON data about games that have been played
+    def retrieve_game_data
+      if token = find_request_verification_token
+        url = XboxLive.options[:url_prefix] + '/en-US/Activity/Summary?' +
+          Mechanize::Util.build_query_string(compareTo: @gamertag)
+        page = XboxLive::Scraper::post_page(url, '__RequestVerificationToken' => token)
+      end
+      JSON.parse(page.body)['Data']
+    end
+
+    # Find the RequestVerificationToken
+    def find_request_verification_token
+      token_block = @page.at('input[name=__RequestVerificationToken]')
+      token_block ? token_block.get_attribute('value') : nil
+    end
+
+    # Find and return the player's large gamertile url from the Games data
     def find_gamertile_large
-      score_block = @page.at('div.HeaderArea div.grid-4').at('div.ScoreBlock')
-      score_block ? score_block.at('img').get_attribute('src') : nil
+      player = @data['Players'].find { |p| p['Gamertag'] == @gamertag }
+      player ? player['Gamerpic'] : nil
     end
 
     # Find and return the player's gamerscore from the Games page
     def find_gamerscore
-      score_block = @page.at('div.HeaderArea div.ScoreBlock')
-      score_block ? score_block.at('div.GamerScore').inner_html.to_i : nil
+      player = @data['Players'].find { |p| p['Gamertag'] == @gamertag }
+      player ? player['Gamerscore'] : nil
     end
 
     # Find and return the player's game progress statistic from the Games page
     def find_progress
-      progress_block = @page.at('div.HeaderArea div.ProgressLabel')
-      progress_block ? progress_block.inner_html.strip : nil
+      player = @data['Players'].find { |p| p['Gamertag'] == @gamertag }
+      player ? player['PercentComplete'] : nil
     end
 
     # Find and return an array of hashes containing information about each
     # game the player has played.
     def find_games
-      games = @page.search('div.LineItem').collect do |item|
-        # Only analyze this game if the player has played it
-        if item.at('div.grid-4').at('div.NotPlayed').nil?
-          gi = GameInfo.new(gamertag, find_game_id_from_lineitem(item))
-          gi.name = find_game_name_from_lineitem(item)
-          gi.tile = find_game_tile_from_lineitem(item)
-          gi.total_points    = find_total_points_from_lineitem(item)
-          gi.unlocked_points = find_unlocked_points_from_lineitem(item)
-          gi.total_achievements    = find_total_achievements_from_lineitem(item)
-          gi.unlocked_achievements = find_unlocked_achievements_from_lineitem(item)
-        end
+      games = @data['Games'].collect do |game|
+        gi = GameInfo.new(gamertag, game['Id'])
+        gi.name = game['Name']
+        gi.tile = game['BoxArt']
+        gi.total_points = game['PossibleScore']
+        gi.total_achievements = game['PossibleAchievements']
+        gi.unlocked_points = game['Progress'][@gamertag]['Score']
+        gi.unlocked_achievements = game['Progress'][@gamertag]['Achievements']
+        gi.last_played = game['Progress'][@gamertag]['LastPlayed']
         gi
       end
       return games
-    end
-
-    # These methods are used to find data about a specific game within
-    # an HTML "div.lineitem" block from the Xbox Live web site.
-
-    def find_game_id_from_lineitem(lineitem)
-      comparison_block = lineitem.at('div.grid-8 div.grid-8 a')
-      comparison_url = comparison_block ? comparison_block.get_attribute('href') : nil
-      comparison_url ? comparison_url.match(/titleId=(\d+)/)[1] : nil
-    end
-
-    def find_game_name_from_lineitem(lineitem)
-      name_block = lineitem.at('h3 a')
-      name_block ? name_block.inner_html.strip : nil
-    end
-
-    def find_game_tile_from_lineitem(lineitem)
-      tile_block = lineitem.at('img.BoxShot')
-      tile_block ? tile_block.get_attribute('src') : nil
-    end
-
-    def find_unlocked_points_from_lineitem(lineitem)
-      score_block = lineitem.at('div.grid-4 div.GamerScore')
-      score_block ? score_block.inner_html.to_i : nil
-    end
-
-    def find_total_points_from_lineitem(lineitem)
-      score_block = lineitem.at('div.grid-4 div.GamerScore')
-      score_block ? score_block.inner_html.match(/\/ (\d+)/)[1].to_i : nil
-    end
-
-    def find_unlocked_achievements_from_lineitem(lineitem)
-      score_block = lineitem.at('div.grid-4 div.Achievement')
-      score_block ? score_block.inner_html.to_i : nil
-    end
-
-    def find_total_achievements_from_lineitem(lineitem)
-      score_block = lineitem.at('div.grid-4 div.Achievement')
-      score_block ? score_block.inner_html.match(/\/ (\d+)/)[1].to_i : nil
     end
 
   end

@@ -19,5 +19,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_runtime_dependency "mechanize", "~> 1.0"
+  s.add_runtime_dependency "json"
   s.add_development_dependency "rspec", "~> 2.6"
 end

@@ -4,7 +4,8 @@ module XboxLive
   # specific game.
   class GameInfo
 
-    attr_accessor :id, :name, :tile, :gamertag, :total_points, :unlocked_points, :total_achievements, :unlocked_achievements
+    attr_accessor :id, :name, :tile, :gamertag, :total_points, :unlocked_points,
+      :total_achievements, :unlocked_achievements, :last_played
 
     # Create a new GameInfo for the provided player and game.
     def initialize(gamertag, game_id)

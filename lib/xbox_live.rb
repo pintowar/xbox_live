@@ -1,4 +1,5 @@
 require 'mechanize'
+require 'json'
 require 'xbox_live/version'
 require 'xbox_live/scraper'
 require 'xbox_live/game_info'
