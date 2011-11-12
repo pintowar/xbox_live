@@ -43,7 +43,7 @@ module XboxLive
         page = agent.get(url)
       end
 
-      if page.nil?
+      if page.nil? or page.title.match /Error/
         log "  ERROR: failed to load page."
         return nil
       end

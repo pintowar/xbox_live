@@ -32,6 +32,7 @@ module XboxLive
       @url = url
       @updated_at = Time.now
       @data = retrieve_achievement_data
+      @gamertag = find_gamertag
       @achievements = find_achievements
 
       true
@@ -44,6 +45,13 @@ module XboxLive
     def retrieve_achievement_data
       data = @page.body.match(/loadCompareView\((.+)\)\;/)[1]
       JSON.parse(data)
+    end
+
+    # Find the gamertag, in case the caps/lowercase are different than
+    # what was provided.
+    def find_gamertag
+      player = @data['Players'].find { |p| p['Gamertag'].casecmp(@gamertag) == 0 }
+      player ? player['Gamertag'] : nil
     end
 
     # Find and return an array of hashes containing information about each
