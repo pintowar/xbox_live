@@ -89,7 +89,7 @@ XboxLive::ProfilePage.new(gamertag)`:
 * `profile_page.gamertile_small`
 * `profile_page.nickname`
 * `profile_page.bio`
-* `profile_page.activity`
+* `profile_page.presence`
 
 The `XboxLive::GamesPage` class makes the following data available from
 a player's Game Comparison page, via a call like `games_page =
@@ -112,6 +112,7 @@ player's progress in a game. Each GameInfo instance makes the following data ava
 * `game_info.gamertag`
 * `game_info.unlocked_points`
 * `game_info.unlocked_achievements`
+* `game_info.last_played`
 
 The `XboxLive::AchievementsPage` class makes the following data
 available from a player's Game Achievement Comparison page, via a call
