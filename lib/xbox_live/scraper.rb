@@ -25,7 +25,7 @@ module XboxLive
 
       # Load the specified page via Mechanize
       log "  Getting page from Xbox Live."
-      page = agent.get(url)
+      page = safe_get(url)
 
       # Most pages require authentication. If the Mechanize agent has
       # not logged in yet, or if the session has expired, it will be
@@ -40,12 +40,12 @@ module XboxLive
         # certain. Therefore, it is safest to just load the page again
         # now that the Mechanize agent has logged in.
         log "  Retrying page #{url}"
-        page = agent.get(url)
+        page = safe_get(url)
       end
 
       if page.nil? or page.title.match /Error/
         log "  ERROR: failed to load page. Trying again."
-        page = agent.get(url)
+        page = safe_get(url)
         if page.nil? or page.title.match /Error/
           log "  ERROR: failed on second try. Aborting."
           return nil
@@ -72,7 +72,17 @@ module XboxLive
     end
 
 
-    private
+    # private
+
+    # Get a page, but catch any errors so processing can continue
+    def self.safe_get(page)
+      begin
+        return agent.get(page)
+      # rescue Errno::ETIMEDOUT, Timeout::Error, Mechanize::ResponseCodeError
+      rescue
+        return nil
+      end
+    end
 
     # Log in to Xbox Live using the supplied login page.
     def self.login(page)
