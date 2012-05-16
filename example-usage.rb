@@ -16,5 +16,5 @@ puts "Score in '#{first_game.name}': #{first_game.unlocked_points} out of #{firs
 
 achievements_page = XboxLive::AchievementsPage.new(player, first_game.id)
 first_ach = achievements_page.achievements.first
-puts "Unlocked achievement '#{first_ach.name}' on #{first_ach.unlocked_on}"
+puts "Unlocked achievement '#{first_ach.name}' at '#{first_ach.unlocked_at}'" 
 

@@ -43,7 +43,7 @@ module XboxLive
 
     # POST to retrieve the JSON data about achievements for this game
     def retrieve_achievement_data
-      data = @page.body.match(/loadCompareView\((.+)\)\;/)[1]
+      data = @page.body.match(/\(routes\.activity\.details\.load,(.*?\);)/)[1][0..-3]
       JSON.parse(data)
     end
 
